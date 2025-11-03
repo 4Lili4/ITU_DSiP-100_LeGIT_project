@@ -1,0 +1,10 @@
+cat_missing_impute = cat_vars.mode(numeric_only=False, dropna=True)
+cat_missing_impute.to_csv("./artifacts/cat_missing_impute.csv")
+
+# Continuous variables missing values
+cont_vars = cont_vars.apply(impute_missing_values)
+cont_vars.apply(describe_numeric_col).T
+
+cat_vars.loc[cat_vars['customer_code'].isna(),'customer_code'] = 'None'
+cat_vars = cat_vars.apply(impute_missing_values)
+cat_vars.apply(lambda x: pd.Series([x.count(), x.isnull().sum()], index = ['Count', 'Missing'])).T
