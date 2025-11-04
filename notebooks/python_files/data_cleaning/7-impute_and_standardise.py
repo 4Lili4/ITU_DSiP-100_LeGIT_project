@@ -4,7 +4,7 @@ import joblib
 
 
 cat_missing_impute = cat_vars.mode(numeric_only=False, dropna=True)
-cat_missing_impute.to_csv("./artifacts/cat_missing_impute.csv")
+cat_missing_impute.to_csv("artifacts/cat_missing_impute.csv")
 
 # Continuous variables missing values
 cont_vars = cont_vars.apply(impute_missing_values)
