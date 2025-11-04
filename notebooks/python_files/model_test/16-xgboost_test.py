@@ -1,6 +1,4 @@
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import classification_report
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 
 #Model test accuracy
 best_model_xgboost_params = model_grid.best_params_
