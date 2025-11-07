@@ -189,3 +189,6 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Not sure why this was in the original gitignore, but we will figure it out
+/raw_data.csv
