@@ -2,7 +2,7 @@
 # GLOBALS                                                                       #
 #################################################################################
 
-PROJECT_NAME = mlops_solution
+PROJECT_NAME = ITU_DSiP-100_LeGIT_project
 PYTHON_VERSION = 3.10
 PYTHON_INTERPRETER = python
 

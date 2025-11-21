@@ -1,4 +1,4 @@
-# mlops_solution documentation!
+# ITU_DSiP-100_LeGIT_project documentation!
 
 ## Description
 
