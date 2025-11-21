@@ -1,6 +1,8 @@
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, cohen_kappa_score, f1_score
 from sklearn.linear_model import LogisticRegression
 from mlflow.tracking import MlflowClient
+from pprint import pprint
+import pandas as pd
 import matplotlib.pyplot as plt
 import mlflow.pyfunc
 import mlflow
@@ -8,7 +10,7 @@ import json
 import joblib
 import os
 
-def XGaccuracy():
+def XGaccuracy(model_grid, X_train, y_train, X_test, y_test):
     #Model test accuracy
     best_model_xgboost_params = model_grid.best_params_
     print("Best xgboost params")
@@ -19,7 +21,9 @@ def XGaccuracy():
     print("Accuracy train", accuracy_score(y_pred_train, y_train ))
     print("Accuracy test", accuracy_score(y_pred_test, y_test))
 
-def XGperf():
+    return y_pred_test, y_pred_train
+
+def XGperf(model_grid, y_train, y_test, y_pred_test, y_pred_train, xgboost_model_path):
     conf_matrix = confusion_matrix(y_test, y_pred_test)
     print("Test actual/predicted\n")
     print(pd.crosstab(y_test, y_pred_test, rownames=['Actual'], colnames=['Predicted'], margins=True),'\n')
@@ -33,12 +37,11 @@ def XGperf():
     print(classification_report(y_train, y_pred_train),'\n')
     
     xgboost_model = model_grid.best_estimator_
-    xgboost_model_path = "./artifacts/lead_model_xgboost.json"
+    
     xgboost_model.save_model(xgboost_model_path)
 
-def best_model():
-    model_results = {
-    xgboost_model_path: classification_report(y_train, y_pred_train, output_dict=True) }
+    model_results = { xgboost_model_path: classification_report(y_train, y_pred_train, output_dict=True) }
+
 
 def SKparams():
     print("Best lr params")

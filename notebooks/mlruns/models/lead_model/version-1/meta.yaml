@@ -1,0 +1,14 @@
+aliases: []
+creation_timestamp: 1763724796076
+current_stage: Staging
+description: null
+last_updated_timestamp: 1763724796126
+name: lead_model
+run_id: 9f795c3a7c5a4c5a9ebecbe8e282a6bc
+run_link: null
+source: file:///C:/Users/lilja/Documents/GitHub/ITU_DSiP-100_LeGIT_project/notebooks/mlruns/900363203422361242/9f795c3a7c5a4c5a9ebecbe8e282a6bc/artifacts/model
+status: READY
+status_message: null
+storage_location: file:///C:/Users/lilja/Documents/GitHub/ITU_DSiP-100_LeGIT_project/notebooks/mlruns/900363203422361242/9f795c3a7c5a4c5a9ebecbe8e282a6bc/artifacts/model
+user_id: null
+version: 1

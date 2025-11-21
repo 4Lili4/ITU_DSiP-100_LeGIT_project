@@ -1,6 +1,7 @@
 from sklearn.metrics import cohen_kappa_score, f1_score
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report
 from scipy.stats import uniform, randint
 from xgboost import XGBRFClassifier
 import matplotlib.pyplot as plt
@@ -8,7 +9,7 @@ import mlflow.pyfunc
 import joblib
 import os
 
-def XGmodel():
+def XGmodel(X_train, y_train):
     model = XGBRFClassifier(random_state=42)
     params = {
         "learning_rate": uniform(1e-2, 3e-1),
@@ -23,6 +24,8 @@ def XGmodel():
     
     model_grid.fit(X_train, y_train)
 
+    return model_grid
+
 class lr_wrapper(mlflow.pyfunc.PythonModel):
     def __init__(self, model):
         self.model = model
@@ -30,7 +33,7 @@ class lr_wrapper(mlflow.pyfunc.PythonModel):
     def predict(self, context, model_input):
         return self.model.predict_proba(model_input)[:, 1]
 
-def SKmodel():
+def SKmodel(experiment_name, X_train, y_train, X_test, y_test):
     mlflow.sklearn.autolog(log_input_examples=True, log_models=False)
     experiment_id = mlflow.get_experiment_by_name(experiment_name).experiment_id
     
@@ -67,3 +70,5 @@ def SKmodel():
     model_classification_report = classification_report(y_test, y_pred_test, output_dict=True)
     
     best_model_lr_params = model_grid.best_params_
+
+    return best_model_lr_params
