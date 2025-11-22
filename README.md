@@ -42,6 +42,7 @@ Project structure was set up using the Cookiecutter Data Science (CCDS) template
 │   │
 │   └── config              <- DVC config file (defines remote cloud storage for data files to pull from)
 │
+│
 ├── .github             <- GitHub directory for GitHub specific files (things like running the dagger workflow would go here)
 │   │
 │   └── workflows           <- Directory for GitHub workflows
@@ -136,8 +137,6 @@ Project structure was set up using the Cookiecutter Data Science (CCDS) template
 │
 │
 ├── tests               <- Contains automated tests (for future use, using pytest)
-│   │
-│   ├── test_data           <- Directory that holds the test datasets for the tests (might be moved later to data/external)
 │   │
 │   └── test_data.py        <- Example test script
 │   
