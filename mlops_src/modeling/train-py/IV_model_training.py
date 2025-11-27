@@ -39,7 +39,7 @@ def SKmodel(experiment_name, X_train, y_train, X_test, y_test):
     
     with mlflow.start_run(experiment_id=experiment_id) as run:
         model = LogisticRegression()
-        lr_model_path = "./artifacts/lead_model_lr.pkl"
+        lr_model_path = "./models/lead_model_lr.pkl"
     
         params = {
                   'solver': ["newton-cg", "lbfgs", "liblinear", "sag", "saga"],
