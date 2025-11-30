@@ -1,32 +1,21 @@
 from pathlib import Path
+import datetime
 
-from dotenv import load_dotenv
-from loguru import logger
-
-# Load environment variables from .env file if it exists
-load_dotenv()
-
-# Paths
 PROJ_ROOT = Path(__file__).resolve().parents[1]
-logger.info(f"PROJ_ROOT path is: {PROJ_ROOT}")
 
-DATA_DIR = PROJ_ROOT / "data"
-RAW_DATA_DIR = DATA_DIR / "raw"
-INTERIM_DATA_DIR = DATA_DIR / "interim"
-PROCESSED_DATA_DIR = DATA_DIR / "processed"
-EXTERNAL_DATA_DIR = DATA_DIR / "external"
+#Paths:
+data_dir = PROJ_ROOT / "data"
+raw_data= data_dir / "raw/raw_data.csv"
+interim_data = data_dir / "interim/interim_data.csv"
+processed_data= data_dir / "processed/processed_data.csv"
 
-MODELS_DIR = PROJ_ROOT / "models"
+max_date = "2024-01-31"
+min_date = "2024-01-01"
 
-REPORTS_DIR = PROJ_ROOT / "reports"
-FIGURES_DIR = REPORTS_DIR / "figures"
+current_date = datetime.datetime.now().strftime("%Y_%B_%d")
+data_gold_path = "./artifacts/train_data_gold.csv"
+data_version = "00000"
+experiment_name = current_date
 
-# If tqdm is installed, configure loguru with tqdm.write
-# https://github.com/Delgan/loguru/issues/135
-try:
-    from tqdm import tqdm
-
-    logger.remove(0)
-    logger.add(lambda msg: tqdm.write(msg, end=""), colorize=True)
-except ModuleNotFoundError:
-    pass
+artifact_path = "model"
+model_name = "lead_model"
