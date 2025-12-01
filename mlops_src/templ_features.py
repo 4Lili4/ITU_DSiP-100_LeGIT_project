@@ -6,10 +6,10 @@ import typer
 
 from templ_config import INTERIM_DATA_DIR, PROCESSED_DATA_DIR
 
-app = typer.Typer()
+#app = typer.Typer()
 
 
-@app.command()
+#@app.command()
 def main(
     # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
     interim_path: Path = INTERIM_DATA_DIR / "interim_data.csv",
@@ -36,4 +36,5 @@ def main(
 
 
 if __name__ == "__main__":
-    app()
+    main()
+    #app()

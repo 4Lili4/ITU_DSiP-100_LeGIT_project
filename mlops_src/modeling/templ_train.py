@@ -7,19 +7,23 @@ import mlflow.pyfunc
 import mlflow
 from scipy.stats import uniform, randint
 from xgboost import XGBRFClassifier
-import matplotlib.pyplot as plt
 from pathlib import Path
 import pandas as pd
 import joblib
 import json
 import time
+import sys
 import os
+#import typer
 
-from loguru import logger
-from tqdm import tqdm
-import typer
+# Get the project root (one directory above mlops_src)
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.append(project_root)
 
-from templ_config import PROCESSED_DATA_DIR, MODELS_DIR, INTERIM_DATA_DIR
+from mlops_src.templ_config import PROCESSED_DATA_DIR, MODELS_DIR, INTERIM_DATA_DIR, experiment_name, data_version, experiment_name, artifact_path, model_name
+
+
+#app = typer.Typer()
 
 def create_dummy_cols(df, col):
     df_dummies = pd.get_dummies(df[col], prefix=col, drop_first=True)
@@ -48,9 +52,8 @@ class lr_wrapper(mlflow.pyfunc.PythonModel):
         return self.model.predict_proba(model_input)[:, 1]
 
 
-app = typer.Typer()
 
-@app.command()
+#@app.command()
 def main(
     # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
     processed_path: Path = PROCESSED_DATA_DIR / "processed_data.csv",
@@ -58,10 +61,14 @@ def main(
     lr_model_path: Path = MODELS_DIR / "lead_model_lr.pkl",
     columns_list_path: Path = INTERIM_DATA_DIR / "columns_list.json",
     model_results_path: Path = MODELS_DIR / "model_results.json",
+    experiment_name = experiment_name,
+    data_version = data_version,
+    artifact_path = artifact_path,
+    model_name = model_name
     # -----------------------------------------
 ):
     
-    #Read in the gold training data
+    #Read in the processed training data
     data = pd.read_csv(processed_path)
     
     #Splitting the columns by variable-type
@@ -85,7 +92,7 @@ def main(
     X = data.drop(["lead_indicator"], axis=1)
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_size=0.15, stratify=y)
     
-    #TRAINING AND TESTING MODEL A
+    #TRAINING AND TESTING MODEL Random Forest
     model = XGBRFClassifier(random_state=42)
     params = {
         "learning_rate": uniform(1e-2, 3e-1),
@@ -99,18 +106,17 @@ def main(
     model_grid = RandomizedSearchCV(model, param_distributions=params, n_jobs=-1, verbose=3, n_iter=10, cv=10)
     model_grid.fit(X_train, y_train)
     best_model_xgboost_params = model_grid.best_params_
-    pprint(best_model_xgboost_params)
     
     y_pred_train = model_grid.predict(X_train)
     y_pred_test = model_grid.predict(X_test)
     
-    #Saving the best version of model A
+    #Saving the best version of model Random forest
     xgboost_model = model_grid.best_estimator_
     xgboost_model.save_model(xgboost_model_path)
     model_results = {xgboost_model_path: classification_report(y_train, y_pred_train, output_dict=True)}
     
     
-    #TRAINING AND TESTING MODEL B
+    #TRAINING AND TESTING MODEL Logistic regression
     mlflow.set_experiment(experiment_name)
     
     mlflow.sklearn.autolog(log_input_examples=True, log_models=False)
@@ -144,12 +150,12 @@ def main(
         # Custom python model for predicting probability 
         mlflow.pyfunc.log_model('model', python_model=lr_wrapper(model))
     
-    
+    #Saving the best version of model Logistic Regression
     model_classification_report = classification_report(y_test, y_pred_test, output_dict=True)
     best_model_lr_params = model_grid.best_params_
     model_results[lr_model_path] = model_classification_report
     
-    #Save model B results
+    #Save column-names and model-results as json-files
     with open(columns_list_path, 'w+') as columns_file:
         columns = {'column_names': list(X_train.columns)}
         json.dump(columns, columns_file)
@@ -170,7 +176,8 @@ def main(
     with open(model_results_path, "r") as f:
         model_results = json.load(f)
     results_df = pd.DataFrame({model: val["weighted avg"] for model, val in model_results.items()}).T
-    
+
+    #Choose best model based on f1-score
     best_model = results_df.sort_values("f1-score", ascending=False).iloc[0].name
     
     #Get production model
@@ -224,4 +231,5 @@ def main(
 
 
 if __name__ == "__main__":
-    app()
+    main()
+#    app()

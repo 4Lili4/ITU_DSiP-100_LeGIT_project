@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from loguru import logger
 
 # Load environment variables from .env file if it exists
+# Might not be needed with dagger workflow virtual env
 load_dotenv()
 
 # Paths
