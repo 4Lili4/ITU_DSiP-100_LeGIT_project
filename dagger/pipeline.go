@@ -10,12 +10,16 @@ import (
 func runPython(ctx context.Context, client *dagger.Client, src *dagger.Directory) *dagger.Container {
 	return client.Container().
 		From("python:3.10").
-		WithDirectory("/workspace", src).
+		WithDirectory("/workspace", src). //setup container
 		WithWorkdir("/workspace").
-		WithExec([]string{"pip", "install", "-r", "requirements.txt"})
+		WithExec([]string{"pip", "install", "-r", "requirements.txt"}) //ensures container has needed libraries to run python script
 }
 
 func main() {
+	train()
+}
+
+func train() {
 	ctx := context.Background()
 
 	client, err := dagger.Connect(ctx)
@@ -25,55 +29,61 @@ func main() {
 	defer client.Close()
 
 	// Load entire repo from project root
-	project := client.Host().Directory("..")
+	project := client.Host().Directory("..") // mount entire repo (all files are accessible)
 
 	//set up base container:
 	pipeline := runPython(ctx, client, project)
 
 	// Data prep and cleaining
-	log.Println("Running I_data_prep.py and II_data_cleaning.py...")
+	log.Println("Data prep and cleaning...")
 	pipeline = pipeline.WithExec([]string{
-		"python", "mlops_src/dataset-py/I_data_prep.py",
-	}).WithExec([]string{
-		"python", "mlops_src/dataset-py/II_data_cleaning.py",
+		"python", "mlops_src/templ_dataset.py",
 	})
 
-	// Data splitting
-	log.Println("Running III_data_splitting.py...")
+	// Feature selection
+	log.Println("Feature selection...")
 	pipeline = pipeline.WithExec([]string{
-		"python", "mlops_src/features-py/III_data_splitting.py",
+		"python", "mlops_src/templ_features.py",
 	})
 
-	// Model training and selection
-	log.Println("Running IV_model_training.py …")
+	// Model training
+	log.Println("Training...")
 	pipeline = pipeline.WithExec([]string{
-		"python", "mlops_src/modeling/train-py/IV_model_training.py",
+		"python", "mlops_src/modeling/templ_train.py",
 	})
 
-	log.Println("Running V_model_test.py …")
-	pipeline = pipeline.WithExec([]string{
-		"python", "mlops_src/modeling/train-py/V_model_test.py",
-	})
-
-	log.Println("Running VI_model_selection.py …")
-	finalStep := pipeline.WithExec([]string{
-		"python", "mlops_src/modeling/train-py/VI_model_selection.py",
-	})
-
-	// Force evaluation to ensure the script runs and the file exists
-	if _, err := finalStep.Sync(ctx); err != nil {
+	// Force evaluation to ensure the script runs and the model file is created
+	if _, err := pipeline.Sync(ctx); err != nil {
 		log.Fatalf("ML pipeline execution failed at the final step: %v", err)
 	}
 
 	// Saving model artifacts
 	log.Println("Exporting model artifact …")
 
-	modelFile := finalStep.File("models/lead_model_lr.pkl")
+	modelFile := pipeline.File("models/lead_model.pkl")
 
-	_, err = modelFile.Export(ctx, "../models/model.pkl")
+	_, err = modelFile.Export(ctx, "../models/model.pkl") //take only this file from the container (there are other aritfacts)
 	if err != nil {
 		log.Fatalf("Failed to export trained model: %v", err)
 	}
 	log.Println("Export complete")
 
+}
+
+func test() {
+	ctx := context.Background()
+
+	client, err := dagger.Connect(ctx)
+	if err != nil {
+		log.Fatalf("Failed to connect to Dagger: %v", err)
+	}
+	defer client.Close()
+
+	project := client.Host().Directory("..")
+
+	pipeline := runPython(ctx, client, project)
+
+	pipeline = pipeline.WithExec([]string{
+		"python", "mlops_src/modeling/templ_predict.py",
+	})
 }
