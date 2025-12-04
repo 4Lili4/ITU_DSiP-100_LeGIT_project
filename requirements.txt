@@ -15,4 +15,4 @@ python-dotenv
 ruff
 tqdm
 typer
--e .
+dotenv

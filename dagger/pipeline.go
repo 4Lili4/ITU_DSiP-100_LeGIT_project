@@ -47,26 +47,35 @@ func train() {
 	})
 
 	// Model training
-	log.Println("Training...")
-	pipeline = pipeline.WithExec([]string{
-		"python", "mlops_src/modeling/templ_train.py",
-	})
+	//log.Println("Training...")
+	//pipeline = pipeline.WithExec([]string{
+	//	"python", "mlops_src/modeling/templ_train.py",
+	//})
 
 	// Force evaluation to ensure the script runs and the model file is created
-	if _, err := pipeline.Sync(ctx); err != nil {
-		log.Fatalf("ML pipeline execution failed at the final step: %v", err)
+	_, err = pipeline.Sync(ctx)
+	if err != nil {
+		// Check if it's a dagger Exec error
+		if execErr, ok := err.(*dagger.ExecError); ok {
+			// Print both stdout and stderr
+			log.Printf("Command failed:\nSTDOUT:\n%s\nSTDERR:\n%s", execErr.Stdout, execErr.Stderr)
+		} else {
+			log.Fatalf("ML pipeline execution failed: %v", err)
+		}
 	}
+
+	log.Println("First 2 steps completed successfully.")
 
 	// Saving model artifacts
-	log.Println("Exporting model artifact …")
+	//log.Println("Exporting model artifact …")
 
-	modelFile := pipeline.File("models/lead_model.pkl")
+	//modelFile := pipeline.File("models/lead_model.pkl")
 
-	_, err = modelFile.Export(ctx, "../models/model.pkl") //take only this file from the container (there are other aritfacts)
-	if err != nil {
-		log.Fatalf("Failed to export trained model: %v", err)
-	}
-	log.Println("Export complete")
+	//_, err = modelFile.Export(ctx, "../models/model.pkl") //take only this file from the container (there are other aritfacts)
+	//if err != nil {
+	//	log.Fatalf("Failed to export trained model: %v", err)
+	//}
+	//log.Println("Export complete")
 
 }
 

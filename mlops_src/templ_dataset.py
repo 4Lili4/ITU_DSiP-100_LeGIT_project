@@ -11,7 +11,7 @@ import typer
 import json
 import os
 
-from mlops_src.templ_config import max_date, min_date, INTERIM_DATA_DIR, RAW_DATA_DIR
+from templ_config import max_date, min_date, INTERIM_DATA_DIR, RAW_DATA_DIR
 
 app = typer.Typer()
 
