@@ -6,6 +6,10 @@ import typer
 
 from mlops_src.config import MODELS_DIR, PROCESSED_DATA_DIR
 
+import sklearn
+import pandas as pd
+import joblib
+
 app = typer.Typer()
 
 
@@ -18,11 +22,12 @@ def main(
     # -----------------------------------------
 ):
     # ---- REPLACE THIS WITH YOUR OWN CODE ----
-    logger.info("Performing inference for model...")
-    for i in tqdm(range(10), total=10):
-        if i == 5:
-            logger.info("Something happened for iteration 5.")
-    logger.success("Inference complete.")
+    with open(model_path, "rb") as f:
+        model = joblib.load(f)
+    X_test = pd.read_csv(features_path)
+    predictions = model.predict(X_test)
+    pd.DataFrame(predictions, columns=["prediction"]).to_csv(predictions_path, index=False)
+    
     # -----------------------------------------
 
 
@@ -32,10 +37,6 @@ if __name__ == "__main__":
 
 # OLD CODE from original source file (model_inference.py)
 """
-import sklearn
-import pandas as pd
-import joblib
-
 with open("artifacts/lead_model_lr.pkl", "rb") as f:
     model = joblib.load(f)
 
