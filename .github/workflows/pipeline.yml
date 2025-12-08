@@ -26,7 +26,7 @@ jobs:
           version: "0.19.7" # Specify Dagger version for reproducibility
           verb: call
           module: dagger
-          args: test
+          args: test --source .
         env:
           DAGGER_LOG_FORMAT: plain # Set Dagger log format to plain text for ease of reading in GitHub
 
@@ -51,7 +51,7 @@ jobs:
           version: "0.19.7"
           verb: call
           module: dagger
-          args: call -o ./models train
+          args: call -o ./models train --source .
         env:
           DAGGER_LOG_FORMAT: plain
 
