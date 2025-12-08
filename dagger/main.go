@@ -17,6 +17,7 @@ func (m *DaggerPipeline) Train(
 	// Start with a Python container
 	container := dag.Container().
 		From("python:3.10").
+		WithEnvVariable("PYTHONPATH", "/workspace").
 		WithDirectory("/workspace", source).
 		WithWorkdir("/workspace").
 		// Install dependencies
@@ -40,6 +41,7 @@ func (m *DaggerPipeline) Test(
 ) *dagger.Container {
 	return dag.Container().
 		From("python:3.10").
+		WithEnvVariable("PYTHONPATH", "/workspace").
 		WithDirectory("/workspace", source).
 		WithWorkdir("/workspace").
 		WithExec([]string{"pip", "install", "-r", "requirements.txt"}).
