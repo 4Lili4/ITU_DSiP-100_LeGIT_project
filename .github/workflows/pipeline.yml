@@ -1,0 +1,102 @@
+name: MLOps Pipeline
+
+on:
+  push: # When push is made to main branch 
+    branches: [main]
+  pull_request: # When PR is made targeting main branch 
+    branches: [main]
+  workflow_dispatch: # Manually trigger workflow, good for debugging before any push is made
+
+jobs:
+  # 1. Test Pipeline (Runs on PRs and Main)
+  test:
+    runs-on: ubuntu-latest # Spin up VM
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4 # Get code from GitHub into VM
+
+      - name: Setup Go
+        uses: actions/setup-go@v5 # Setup Go in VM
+        with:
+          go-version: '1.20' # Specify Go version for reproducibility
+
+      - name: Run Dagger Tests
+        uses: dagger/dagger-for-github@v6 # Use official Dagger GitHub Action
+        with:
+          version: "0.14.0" # Specify Dagger version for reproducibility
+          verb: call
+          args: --source=./dagger test
+        env:
+          DAGGER_LOG_FORMAT: plain # Set Dagger log format to plain text for ease of reading in GitHub
+
+
+  # 2. Train Pipeline (Runs ONLY on Main)
+  train:
+    needs: test # Depends on test job being complete
+    if: github.ref == 'refs/heads/main' # Only run on main branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.20'
+
+      - name: Run Dagger Training
+        uses: dagger/dagger-for-github@v6
+        with:
+          version: "0.14.0"
+          verb: call
+          args: --source=./dagger call -o ./models train
+        env:
+          DAGGER_LOG_FORMAT: plain
+
+      - name: Verify Model Artifact Exists # Checks if the artifact has been saved
+        run: |
+          if [ ! -f "models/lead_model_lr.pkl" ]; then
+            echo "ERROR: Model file not found at models/lead_model_lr.pkl"
+            exit 1
+          fi
+          echo "DONE: Model artifact verified: models/lead_model_lr.pkl"
+          ls -lh models/lead_model_lr.pkl
+
+      - name: Upload Model Artifact # Upload model artifact to GitHub using github actions
+        uses: actions/upload-artifact@v4 
+        with:
+          name: lead_model # Name of artifact
+          path: models/lead_model_lr.pkl # Path to artifact to upload
+
+
+  # 3. Verify Model (Runs after Training)
+  verify:
+    needs: train # Depends on train job being complete
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download Model Artifact
+        uses: actions/download-artifact@v4 # Download model artifact from GitHub using github actions
+        with:
+          name: lead_model # Name of artifact
+          path: models # Path to artifact
+
+      - name: List Downloaded Artifacts # For debugging, list all files in models directory 
+        run: |
+          echo "Listing files in models directory:"
+          ls -lah models/
+
+      - name: Verify Model Artifact Downloaded # For debugging, checks if the artifact has been downloaded
+        run: |
+          if [ ! -f "models/lead_model_lr.pkl" ]; then
+            echo "ERROR: Model file not found after download"
+            exit 1
+          fi
+          echo "DONE: Model artifact verified after download"
+
+      - name: Run Model Inference Test Action # Uses model validator action provided by ITU
+        uses: lasselundstenjensen/itu-sdse-project-model-validator@main
+        with:
+          model-path: models/lead_model_lr.pkl

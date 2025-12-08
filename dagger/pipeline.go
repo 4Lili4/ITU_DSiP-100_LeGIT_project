@@ -15,7 +15,7 @@ func runPython(ctx context.Context, client *dagger.Client, src *dagger.Directory
 		WithExec([]string{"pip", "install", "-r", "requirements.txt"}) //ensures container has needed libraries to run python script
 }
 
-func main() {
+func legacy_main() { // Renamed to legacy_main to avoid conflict with new main function in main.go
 	train()
 }
 
