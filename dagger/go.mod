@@ -2,7 +2,7 @@ module dagger-pipeline
 
 go 1.23.2
 
-toolchain go1.24.10
+
 
 require dagger.io/dagger v0.19.7
 
