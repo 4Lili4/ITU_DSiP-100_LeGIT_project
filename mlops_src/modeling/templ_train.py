@@ -141,7 +141,7 @@ def main(
     
         # log artifacts
         mlflow.log_metric('f1_score', f1_score(y_test, y_pred_test))
-        mlflow.log_artifacts("artifacts", artifact_path="model")
+        mlflow.log_artifacts(str(MODELS_DIR), artifact_path="model")
         mlflow.log_param("data_version", "00000")
         
         # store model for model interpretability
