@@ -18,7 +18,8 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5 # Setup Go in VM
         with:
-          go-version: '1.20' # Specify Go version for reproducibility
+          go-version: '1.24' # Specify Go version for reproducibility
+          cache-dependency-path: dagger/go.sum
 
       - name: Run Dagger Tests
         uses: dagger/dagger-for-github@v6 # Use official Dagger GitHub Action
@@ -43,7 +44,8 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.20'
+          go-version: '1.24'
+          cache-dependency-path: dagger/go.sum
 
       - name: Run Dagger Training
         uses: dagger/dagger-for-github@v6
