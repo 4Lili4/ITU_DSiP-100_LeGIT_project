@@ -53,7 +53,7 @@ jobs:
           version: "0.19.7"
           verb: call
           module: dagger
-          args: call -o ./models train --source .
+          args: -o ./models train --source .
         env:
           DAGGER_LOG_FORMAT: plain
 
