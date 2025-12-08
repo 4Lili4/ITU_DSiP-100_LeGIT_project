@@ -21,8 +21,8 @@ func (m *DaggerPipeline) Train(
 		WithWorkdir("/workspace").
 		// Install dependencies
 		WithExec([]string{"pip", "install", "-r", "requirements.txt"}).
-		// Pull data using DVC
-		WithExec([]string{"dvc", "pull"}).
+		// Pull data using DVC, fallback to repro (download) if pull fails
+		WithExec([]string{"sh", "-c", "dvc pull || dvc repro"}).
 		// Run pipeline steps
 		WithExec([]string{"python", "mlops_src/templ_dataset.py"}).
 		WithExec([]string{"python", "mlops_src/templ_features.py"}).
@@ -44,6 +44,6 @@ func (m *DaggerPipeline) Test(
 		WithWorkdir("/workspace").
 		WithExec([]string{"pip", "install", "-r", "requirements.txt"}).
 		// We assume data is needed for prediction too, or at least the model
-		WithExec([]string{"dvc", "pull"}).
+		WithExec([]string{"sh", "-c", "dvc pull || dvc repro"}).
 		WithExec([]string{"python", "mlops_src/modeling/templ_predict.py"})
 }
