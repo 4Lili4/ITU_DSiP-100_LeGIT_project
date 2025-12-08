@@ -113,7 +113,7 @@ def main(
     #Saving the best version of model Random forest
     xgboost_model = model_grid.best_estimator_
     xgboost_model.save_model(xgboost_model_path)
-    model_results = {xgboost_model_path: classification_report(y_train, y_pred_train, output_dict=True)}
+    model_results = {str(xgboost_model_path): classification_report(y_train, y_pred_train, output_dict=True)}
     
     
     #TRAINING AND TESTING MODEL Logistic regression
@@ -153,7 +153,7 @@ def main(
     #Saving the best version of model Logistic Regression
     model_classification_report = classification_report(y_test, y_pred_test, output_dict=True)
     best_model_lr_params = model_grid.best_params_
-    model_results[lr_model_path] = model_classification_report
+    model_results[str(lr_model_path)] = model_classification_report
     
     #Save column-names and model-results as json-files
     with open(columns_list_path, 'w+') as columns_file:
