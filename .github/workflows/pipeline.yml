@@ -66,11 +66,16 @@ jobs:
           echo "DONE: Model artifact verified: models/lead_model_lr.pkl"
           ls -lh models/lead_model_lr.pkl
 
+      - name: Rename Model for Validator # The validator expects 'model.pkl'
+        run: |
+          echo "Renaming model info model.pkl for compatibility with validator..."
+          cp models/lead_model_lr.pkl models/model.pkl
+
       - name: Upload Model Artifact # Upload model artifact to GitHub using github actions
         uses: actions/upload-artifact@v4 
         with:
           name: model # Name of artifact
-          path: models/lead_model_lr.pkl # Path to artifact to upload
+          path: models/model.pkl # Path to artifact to upload
 
 
   # 3. Verify Model (Runs after Training)
@@ -94,7 +99,7 @@ jobs:
 
       - name: Verify Model Artifact Downloaded # For debugging, checks if the artifact has been downloaded
         run: |
-          if [ ! -f "models/lead_model_lr.pkl" ]; then
+          if [ ! -f "models/model.pkl" ]; then
             echo "ERROR: Model file not found after download"
             exit 1
           fi
