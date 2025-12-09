@@ -107,5 +107,3 @@ jobs:
 
       - name: Run Model Inference Test Action # Uses model validator action provided by ITU
         uses: lasselundstenjensen/itu-sdse-project-model-validator@main
-        with:
-          model-path: models/lead_model_lr.pkl
