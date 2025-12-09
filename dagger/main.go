@@ -49,3 +49,5 @@ func (m *DaggerPipeline) Test(
 		WithExec([]string{"sh", "-c", "dvc pull || dvc update data/raw/raw_data.csv.dvc"}).
 		WithExec([]string{"python", "mlops_src/modeling/templ_predict.py"})
 }
+
+// Need actual Test function, and rename current Test to Predict?
