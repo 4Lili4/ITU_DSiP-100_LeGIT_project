@@ -160,10 +160,10 @@ def main(
         mlflow.log_param("data_version", data_version)
         
         # store model for model interpretability
-        joblib.dump(value=model, filename=lr_model_path)
+        joblib.dump(value=best_model, filename=lr_model_path)
             
         # Custom python model for predicting probability 
-        mlflow.pyfunc.log_model('model', python_model=lr_wrapper(model))
+        mlflow.pyfunc.log_model('model', python_model=lr_wrapper(best_model))
     
     #Saving the best version of model Logistic Regression to the same dict we previously created
     model_classification_report = classification_report(y_test, y_pred_test, output_dict=True)
