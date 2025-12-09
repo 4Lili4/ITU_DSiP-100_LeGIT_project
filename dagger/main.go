@@ -3,8 +3,6 @@ package main
 import (
 	"context"
 	"dagger-pipeline/internal/dagger"
-
-	"dagger.io/dagger/dag"
 )
 
 type DaggerPipeline struct{}
