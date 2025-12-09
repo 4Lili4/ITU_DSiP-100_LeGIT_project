@@ -34,7 +34,7 @@ func (m *DaggerPipeline) Train(
 	return container.Directory("/workspace/models")
 }
 
-// Predict generates predictions based on the saved model
+// Predict runs the model inference
 func (m *DaggerPipeline) Predict(
 	ctx context.Context,
 	source *dagger.Directory,
@@ -63,5 +63,6 @@ func (m *DaggerPipeline) Test(
 		WithExec([]string{"pip", "install", "-r", "requirements.txt"}).
 		// Pull data if relevant for tests
 		WithExec([]string{"sh", "-c", "dvc pull || dvc update data/raw/raw_data.csv.dvc"}).
-		WithExec([]string{"pytest", "--maxfail=1", "--disable-warnings", "-q", "tests/test_data.py"})
+		WithExec([]string{"python", "mlops_src/modeling/test_training.py"}).
+		WithExec([]string{"python", "mlops_src/modeling/test_inference.py"})
 }
