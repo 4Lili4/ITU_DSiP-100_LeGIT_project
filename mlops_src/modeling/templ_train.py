@@ -152,6 +152,10 @@ def main(
     
         # log artifacts - here we specify the parameters that we actually wish to log
         mlflow.log_metric('f1_score', f1_score(y_test, y_pred_test))
+        # Ensure directory exists before logging
+        if not os.path.exists(LR_artifacts):
+            os.makedirs(LR_artifacts)
+        
         mlflow.log_artifacts(str(LR_artifacts), artifact_path="model")
         mlflow.log_param("data_version", data_version)
         
