@@ -30,7 +30,7 @@ jobs:
           version: "0.19.7" # Specify Dagger version for reproducibility
           verb: call
           module: dagger
-          args: test --source .
+          args: predict --source .
         env:
           DAGGER_LOG_FORMAT: plain # Set Dagger log format to plain text for ease of reading in GitHub
 
