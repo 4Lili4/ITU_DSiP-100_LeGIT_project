@@ -64,19 +64,20 @@ def main(
     #Read in the raw data found in the raw data folder
     data = pd.read_csv(input_path)
     
-    #Making str max and min dates into datetime. If no max date, it chooses today's date. It's superfluous so i've commented it out
-    #if not max_date:
-    #    max_date = pd.to_datetime(datetime.datetime.now().date()).date()
-    #else:
-    #    max_date = pd.to_datetime(max_date).date()
+    #Checking if a max_date has been defined. If no max date, it chooses today's date. It's superfluous when there is a max_date
+    if not max_date:
+        max_date = pd.to_datetime(datetime.datetime.now().date()).date()
+    else:
+        max_date = pd.to_datetime(max_date).date()
     
-    #Actually assigning values to min and max date, but some of the following may also be superfluous
-    max_date = pd.to_datetime(max_date).date()
+    #interpret min as a date insteaad of a string
     min_date = pd.to_datetime(min_date).date()
-    
+
+    #Find the max and min date within the dataset, which fits within the defined max and min dates
     data["date_part"] = pd.to_datetime(data["date_part"]).dt.date
     data = data[(data["date_part"] >= min_date) & (data["date_part"] <= max_date)]
-    
+
+    #Save the max and min date within the now cropped dataset
     min_date = data["date_part"].min()
     max_date = data["date_part"].max()
     
@@ -122,9 +123,10 @@ def main(
     outlier_summary = cont_vars.apply(describe_numeric_col).T
     outlier_summary.to_csv(outlier_sum_path)
     
-    #Impute missing data for categorical variables
+    #Save the rows missing categorical variable values
     cat_missing_impute = cat_vars.mode(numeric_only=False, dropna=True)
     cat_missing_impute.to_csv(cat_impute_path)
+    #Impute missing values to categorical variables
     cat_vars.loc[cat_vars['customer_code'].isna(),'customer_code'] = 'None'
     cat_vars = cat_vars.apply(impute_missing_values)
     cat_vars.apply(lambda x: pd.Series([x.count(), x.isnull().sum()], index = ['Count', 'Missing'])).T

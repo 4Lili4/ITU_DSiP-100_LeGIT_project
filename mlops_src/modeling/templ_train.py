@@ -39,7 +39,7 @@ def wait_until_ready(model_name, model_version):
           version=model_version,
         )
         status = ModelVersionStatus.from_string(model_version_details.status)
-        print(f"Model status: {ModelVersionStatus.to_string(status)}")
+        print(f"\nModel status: {ModelVersionStatus.to_string(status)}")
         if status == ModelVersionStatus.READY:
             break
         time.sleep(1)
@@ -61,6 +61,9 @@ def main(
     lr_model_path: Path = MODELS_DIR / "lead_model_lr.pkl",
     columns_list_path: Path = INTERIM_DATA_DIR / "columns_list.json",
     model_results_path: Path = MODELS_DIR / "model_results.json",
+    LR_artifacts: Path = INTERIM_DATA_DIR / "LR_artifacts",
+    metadata_path: Path = MODELS_DIR / "mlruns",
+    
     experiment_name = experiment_name,
     data_version = data_version,
     artifact_path = artifact_path,
@@ -74,20 +77,22 @@ def main(
     #Splitting the columns by variable-type
     data = data.drop(["lead_id", "customer_code", "date_part"], axis=1)
     cat_cols = ["customer_group", "onboarding", "bin_source", "source"]
-    cat_vars = data[cat_cols]
+    cat_vars = data[cat_cols].copy()
     other_vars = data.drop(cat_cols, axis=1)
     
     #Dummy variable for categorical variables with one-hot encoding
     for col in cat_vars:
         cat_vars[col] = cat_vars[col].astype("category")
         cat_vars = create_dummy_cols(cat_vars, col)
-    
+
+    #Re-combine variable-types into one dataframe again
     data = pd.concat([other_vars, cat_vars], axis=1)
-    
+
+    #Convert all columns to float
     for col in data:
         data[col] = data[col].astype("float64")
     
-    #Splitting data into training and testing tests
+    #Splitting data into training and testing sets
     y = data["lead_indicator"]
     X = data.drop(["lead_indicator"], axis=1)
     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42, test_size=0.15, stratify=y)
@@ -113,12 +118,18 @@ def main(
     #Saving the best version of model Random forest
     xgboost_model = model_grid.best_estimator_
     xgboost_model.save_model(xgboost_model_path)
-    model_results = {xgboost_model_path: classification_report(y_train, y_pred_train, output_dict=True)}
+
+    xgboost_results = str(xgboost_model_path).split("\\")[-1]
+    #Initialise dict to save model results, will later add results from logistic regression as well
+    model_results = {xgboost_results: classification_report(y_train, y_pred_train, output_dict=True)}
     
+    #Set mlflow model path to the models-folder, s.t. metadata created ends up in the mlruns-folder in models.
+    mlflow.set_tracking_uri(metadata_path)
     
     #TRAINING AND TESTING MODEL Logistic regression
     mlflow.set_experiment(experiment_name)
-    
+
+    #Autolog is initialised, but cancelled out s.t. we only log the parameters we want (later)
     mlflow.sklearn.autolog(log_input_examples=True, log_models=False)
     experiment_id = mlflow.get_experiment_by_name(experiment_name).experiment_id
     
@@ -139,21 +150,26 @@ def main(
         y_pred_test = model_grid.predict(X_test)
     
     
-        # log artifacts
+        # log artifacts - here we specify the parameters that we actually wish to log
         mlflow.log_metric('f1_score', f1_score(y_test, y_pred_test))
-        mlflow.log_artifacts("artifacts", artifact_path="model")
-        mlflow.log_param("data_version", "00000")
+        # Ensure directory exists before logging
+        if not os.path.exists(LR_artifacts):
+            os.makedirs(LR_artifacts)
+        
+        mlflow.log_artifacts(str(LR_artifacts), artifact_path="model")
+        mlflow.log_param("data_version", data_version)
         
         # store model for model interpretability
-        joblib.dump(value=model, filename=lr_model_path)
+        joblib.dump(value=best_model, filename=lr_model_path)
             
         # Custom python model for predicting probability 
-        mlflow.pyfunc.log_model('model', python_model=lr_wrapper(model))
+        mlflow.pyfunc.log_model('model', python_model=lr_wrapper(best_model))
     
-    #Saving the best version of model Logistic Regression
+    #Saving the best version of model Logistic Regression to the same dict we previously created
     model_classification_report = classification_report(y_test, y_pred_test, output_dict=True)
     best_model_lr_params = model_grid.best_params_
-    model_results[lr_model_path] = model_classification_report
+    mlflow_results = str(lr_model_path).split("\\")[-1]
+    model_results[mlflow_results] = model_classification_report
     
     #Save column-names and model-results as json-files
     with open(columns_list_path, 'w+') as columns_file:
@@ -163,7 +179,7 @@ def main(
     with open(model_results_path, 'w+') as results_file:
         json.dump(model_results, results_file)
     
-    #MODEL SELECTION
+    #MODEL SELECTION______________________________________________________________________________________
     #Get experiment model results
     experiment_ids = [mlflow.get_experiment_by_name(experiment_name).experiment_id]
     
@@ -189,12 +205,12 @@ def main(
         prod_model_version = dict(prod_model[0])['version']
         prod_model_run_id = dict(prod_model[0])['run_id']
         
-        print('Production model name: ', model_name)
+        print('\n\nProduction model name: ', model_name)
         print('Production model version:', prod_model_version)
         print('Production model run id:', prod_model_run_id)
         
     else:
-        print('No model in production')
+        print('\n\nNo model in production')
     
     #Compare prod and best trained model
     train_model_score = experiment_best["metrics.f1_score"]
@@ -210,7 +226,7 @@ def main(
         model_status["prod"] = prod_model_score
     
         if train_model_score>prod_model_score:
-            print("Registering new model")
+            print("\nRegistering new model")
             run_id = experiment_best["run_id"]
     else:
         print("No model in production")
@@ -218,7 +234,7 @@ def main(
     
     #Register best model
     if run_id is not None:
-        print(f'Best model found: {run_id}')
+        print(f'\nBest model found: {run_id}')
     
         model_uri = "runs:/{run_id}/{artifact_path}".format(
             run_id=run_id,
@@ -227,7 +243,7 @@ def main(
         model_details = mlflow.register_model(model_uri=model_uri, name=model_name)
         wait_until_ready(model_details.name, model_details.version)
         model_details = dict(model_details)
-        print(model_details)
+        print("Model details: ", model_details)
 
 
 if __name__ == "__main__":

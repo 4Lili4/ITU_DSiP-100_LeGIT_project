@@ -1,0 +1,5 @@
+{
+    "name": "dagger-pipeline",
+    "sdk": "go",
+    "source": "."
+}

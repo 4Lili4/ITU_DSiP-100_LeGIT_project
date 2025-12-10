@@ -17,7 +17,7 @@ def main(
     # -----------------------------------------
 ):
     
-    data=pd.read_csv(interim_path)
+    data=pd.read_csv(interim_path, keep_default_na=False, float_precision='round_trip')
     
     #Binning the data
     data['bin_source'] = data['source']

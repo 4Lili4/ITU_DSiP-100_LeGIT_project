@@ -4,7 +4,7 @@ from loguru import logger
 from tqdm import tqdm
 import typer
 
-from mlops_src.config import MODELS_DIR, PROJ_ROOT
+from mlops_src.config import MODELS_DIR, PROJ_ROOT, PROCESSED_DATA_DIR
 
 import sklearn
 import pandas as pd
