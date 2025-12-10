@@ -77,28 +77,28 @@ jobs:
           path: models/model.pkl # Path to artifact to upload
 
   # 2. Predict Pipeline (Runs on PRs and Main)
-    predict:
-      needs: test # Depends on test job being complete
-      runs-on: ubuntu-latest # Spin up VM
-      steps:
-        - name: Checkout Code
-          uses: actions/checkout@v4 # Get code from GitHub into VM
+  predict:
+    needs: test # Depends on test job being complete
+    runs-on: ubuntu-latest # Spin up VM
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4 # Get code from GitHub into VM
 
-        - name: Setup Go
-          uses: actions/setup-go@v5 # Setup Go in VM
-          with:
-            go-version: '1.24' # Specify Go version for reproducibility
-            cache-dependency-path: dagger/go.sum
+      - name: Setup Go
+        uses: actions/setup-go@v5 # Setup Go in VM
+        with:
+          go-version: '1.24' # Specify Go version for reproducibility
+          cache-dependency-path: dagger/go.sum
 
-        - name: Run Dagger Tests
-          uses: dagger/dagger-for-github@v6 # Use official Dagger GitHub Action
-          with:
-            version: "0.19.7" # Specify Dagger version for reproducibility
-            verb: call
-            module: dagger
-            args: predict --source .
-          env:
-            DAGGER_LOG_FORMAT: plain # Set Dagger log format to plain text for ease of reading in GitHub
+      - name: Run Dagger Tests
+        uses: dagger/dagger-for-github@v6 # Use official Dagger GitHub Action
+        with:
+          version: "0.19.7" # Specify Dagger version for reproducibility
+          verb: call
+          module: dagger
+          args: predict --source .
+        env:
+          DAGGER_LOG_FORMAT: plain # Set Dagger log format to plain text for ease of reading in GitHub
 
   # 3. Verify Model (Runs after Training)
   verify:
