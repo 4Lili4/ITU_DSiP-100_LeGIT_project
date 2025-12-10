@@ -45,7 +45,7 @@ func (m *DaggerPipeline) Train(
 		// Run pipeline steps
 		WithExec([]string{"python", "mlops_src/templ_dataset.py"}).
 		WithExec([]string{"python", "mlops_src/templ_features.py"}).
-		WithExec([]string{"python", "mlops_src/modeling/templ_train.py"})
+		WithExec([]string{"python", "mlops_src/modeling/templ_train.py"}).
 		WithExec([]string{"python", "mlops_src/modeling/templ_predict.py"})
 
 	// Return the models directory (all artifacts)
