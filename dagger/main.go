@@ -7,6 +7,23 @@ import (
 
 type DaggerPipeline struct{}
 
+// Test runs the pytests
+func (m *DaggerPipeline) Test(
+	ctx context.Context,
+	source *dagger.Directory,
+) *dagger.Container {
+	return dag.Container().
+		From("python:3.10").
+		WithEnvVariable("PYTHONPATH", "/workspace").
+		WithDirectory("/workspace", source).
+		WithWorkdir("/workspace").
+		WithExec([]string{"pip", "install", "-r", "requirements.txt"}).
+		// Pull data if relevant for tests
+		WithExec([]string{"sh", "-c", "dvc pull || dvc update data/raw/raw_data.csv.dvc"}).
+		WithExec([]string{"python", "mlops_src/modeling/test_training.py"}).
+		WithExec([]string{"python", "mlops_src/modeling/test_inference.py"})
+}
+
 // Train runs the training pipeline: install dependencies, pull data, process features, and train the model.
 // It returns the models directory containing the trained artifacts.
 func (m *DaggerPipeline) Train(
@@ -46,21 +63,4 @@ func (m *DaggerPipeline) Predict(
 		// We assume data is needed for prediction too, or at least the model
 		WithExec([]string{"sh", "-c", "dvc pull || dvc update data/raw/raw_data.csv.dvc"}).
 		WithExec([]string{"python", "mlops_src/modeling/templ_predict.py"})
-}
-
-// Test runs the pytests
-func (m *DaggerPipeline) Test(
-	ctx context.Context,
-	source *dagger.Directory,
-) *dagger.Container {
-	return dag.Container().
-		From("python:3.10").
-		WithEnvVariable("PYTHONPATH", "/workspace").
-		WithDirectory("/workspace", source).
-		WithWorkdir("/workspace").
-		WithExec([]string{"pip", "install", "-r", "requirements.txt"}).
-		// Pull data if relevant for tests
-		WithExec([]string{"sh", "-c", "dvc pull || dvc update data/raw/raw_data.csv.dvc"}).
-		WithExec([]string{"python", "mlops_src/modeling/test_training.py"}).
-		WithExec([]string{"python", "mlops_src/modeling/test_inference.py"})
 }
