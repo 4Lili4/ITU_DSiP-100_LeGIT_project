@@ -31,7 +31,7 @@ jobs:
         env:
           DAGGER_LOG_FORMAT: plain # Set Dagger log format to plain text for ease of reading in GitHub
 
-  # 1. Train Pipeline (Runs ONLY on Main)
+  # 1. Train Pipeline (Runs after Testing)
   train:
     needs: test # Depends on test job being complete
     if: github.ref == 'refs/heads/main' # Only run on main branch
@@ -76,9 +76,9 @@ jobs:
           name: model # Name of artifact
           path: models/model.pkl # Path to artifact to upload
 
-  # 2. Predict Pipeline (Runs on PRs and Main)
+  # 2. Predict Pipeline (Runs after Training)
   predict:
-    needs: test # Depends on test job being complete
+    needs: train # Depends on train job being complete
     runs-on: ubuntu-latest # Spin up VM
     steps:
       - name: Checkout Code
@@ -100,7 +100,7 @@ jobs:
         env:
           DAGGER_LOG_FORMAT: plain # Set Dagger log format to plain text for ease of reading in GitHub
 
-  # 3. Verify Model (Runs after Training)
+  # 3. Verify Model (Runs after Prediction)
   verify:
     needs: predict # Depends on predict job being complete
     runs-on: ubuntu-latest
