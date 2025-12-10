@@ -4,7 +4,7 @@ from loguru import logger
 from tqdm import tqdm
 import typer
 
-from mlops_src.config import MODELS_DIR, PROCESSED_DATA_DIR
+from mlops_src.config import MODELS_DIR, PROJ_ROOT
 
 import sklearn
 import pandas as pd
@@ -16,8 +16,8 @@ app = typer.Typer()
 @app.command()
 def main(
     # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
-    features_path: Path = PROCESSED_DATA_DIR / "test_features.csv",
-    model_path: Path = MODELS_DIR / "model.pkl",
+    features_path: Path = PROJ_ROOT / "/external/test_features.csv",
+    model_path: Path = MODELS_DIR / "lead_model_lr.pkl",
     predictions_path: Path = PROCESSED_DATA_DIR / "test_predictions.csv",
     # -----------------------------------------
 ):
