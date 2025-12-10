@@ -14,7 +14,8 @@ def check_test_dataset_exists():
     os.makedirs("tests/test_dataset/processed", exist_ok=True)
     os.makedirs("tests/test_dataset/raw", exist_ok=True)
     os.makedirs("tests/test_dataset/interim", exist_ok=True)
-
+    assert os.path.exists("tests/test_dataset"), "Failed to create test dataset directory"
+    
 def test_load_training_data():
     # Define path
     raw_data_path = DATA_DIR / "raw" / "raw_data.csv"
@@ -26,7 +27,7 @@ def test_load_training_data():
     assert len(df.columns) > 0, "Raw data has no columns"
 
 def test_data_interim_processing():
-    df = pd.read_csv(DATA_DIR / "raw" / "raw_data.csv").head(10)
+    df = pd.read_csv(DATA_DIR / "raw" / "raw_data.csv").head(100)
     df.to_csv("tests/test_dataset/raw/raw_data_sample.csv", index=False)
     
     #Setting paths to test interim processing
