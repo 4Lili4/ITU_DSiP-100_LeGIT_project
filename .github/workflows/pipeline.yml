@@ -25,7 +25,7 @@ jobs:
       - name: Run Tests
         uses: dagger/dagger-for-github@v6 # Use official Dagger GitHub Action
         with:
-          version: "0.19.7" # Specify Dagger version for reproducibility
+          version: "0.19.8" # Specify Dagger version for reproducibility
           verb: call
           module: dagger
           args: test --source .
@@ -50,7 +50,7 @@ jobs:
       - name: Run Tests
         uses: dagger/dagger-for-github@v6 # Use official Dagger GitHub Action
         with:
-          version: "0.19.7" # Specify Dagger version for reproducibility
+          version: "0.19.8" # Specify Dagger version for reproducibility
           verb: call
           module: dagger
           args: test --source .
@@ -58,14 +58,14 @@ jobs:
           DAGGER_LOG_FORMAT: plain # Set Dagger log format to plain text for ease of reading in GitHub
 
       - name: Run Model Training
-        uses: dagger/dagger-for-github@v6
+        uses: dagger/dagger-for-github@v6 # Use official Dagger GitHub Action
         with:
-          version: "0.19.7"
+          version: "0.19.8" # Specify Dagger version for reproducibility
           verb: call
           module: dagger
           args: -o ./models train --source .
         env:
-          DAGGER_LOG_FORMAT: plain
+          DAGGER_LOG_FORMAT: plain # Set Dagger log format to plain text for ease of reading in GitHub
 
       - name: Verify Model Artifact Exists # Checks if the artifact has been saved
         run: |
@@ -86,16 +86,6 @@ jobs:
         with:
           name: model # Name of artifact
           path: models/model.pkl # Path to artifact to upload
-
-      - name: Run Model Inference / Prediction
-        uses: dagger/dagger-for-github@v6 # Use official Dagger GitHub Action
-        with:
-          version: "0.19.7" # Specify Dagger version for reproducibility
-          verb: call
-          module: dagger
-          args: predict --source .
-        env:
-          DAGGER_LOG_FORMAT: plain # Set Dagger log format to plain text for ease of reading in GitHub
 
       - name: Download Model Artifact
         uses: actions/download-artifact@v4 # Download model artifact from GitHub using github actions
@@ -119,3 +109,6 @@ jobs:
       - name: Run Model Inference Test Action # Uses model validator action provided by ITU
         uses: lasselundstenjensen/itu-sdse-project-model-validator@main
 
+
+# There is no inference pipeline, as we might not need it, however for the future it could be worth considering
+# What if the prediction data changes?
