@@ -3,8 +3,11 @@ import pandas as pd
 from loguru import logger
 from tqdm import tqdm
 import typer
+import os,sys
 
-from templ_config import INTERIM_DATA_DIR, PROCESSED_DATA_DIR
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.append(project_root)
+from mlops_src.templ_config import INTERIM_DATA_DIR, PROCESSED_DATA_DIR
 
 #app = typer.Typer()
 
