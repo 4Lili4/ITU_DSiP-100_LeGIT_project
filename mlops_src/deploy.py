@@ -1,3 +1,6 @@
+#DEPLOY ___________________________
+#A model version can be assigned to one or more stages. MLflow provides predefined stages for common use cases: None, Staging, Production, and Archived. With the necessary permissions, you can transition a model version between stages or request a transition to a different stage.
+
 model_version = 1
 
 from mlflow.tracking import MlflowClient
