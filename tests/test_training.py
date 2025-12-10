@@ -1,6 +1,11 @@
-from mlops_src.templ_config import DATA_DIR
 import pandas as pd
 import pytest
+import os, sys
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(project_root)
+from mlops_src.templ_config import DATA_DIR
+
 # from mlops_src.modeling.train import train_model # We will implement this later
 
 def test_load_training_data():
@@ -31,3 +36,11 @@ def test_model_is_trainable():
     # assert model is not None
     # assert hasattr(model, "predict")
     pytest.fail("Training code not yet implemented")
+
+def main():
+    test_load_training_data()
+    test_model_is_trainable()
+    print("All training tests passed.")
+
+if __name__ == "__main__":
+    main()

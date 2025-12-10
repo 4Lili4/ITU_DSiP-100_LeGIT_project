@@ -1,7 +1,12 @@
-from mlops_src.templ_config import MODELS_DIR, DATA_DIR
 import pandas as pd
 import joblib
 import pytest
+import os, sys
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(project_root)
+from mlops_src.templ_config import MODELS_DIR, DATA_DIR
+
 
 def test_load_test_data():
     # Define paths
@@ -42,3 +47,11 @@ def test_model_inference():
     # Assertions
     assert len(predictions) == 5, "Prediction count mismatch"
     assert predictions is not None, "Predictions should not be None"
+
+def main():
+    test_load_test_data()
+    test_model_inference()
+    print("All inference tests passed.")
+if __name__ == "__main__":
+    main()
+    
