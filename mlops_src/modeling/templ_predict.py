@@ -4,7 +4,15 @@ from loguru import logger
 from tqdm import tqdm
 import typer
 
-from mlops_src.templ_config import MODELS_DIR, PROCESSED_DATA_DIR
+import sklearn
+import pandas as pd
+import joblib
+import os, sys
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.append(project_root)
+from mlops_src.templ_config import MODELS_DIR, PROCESSED_DATA_DIR, DATA_DIR
+
 
 app = typer.Typer()
 
@@ -12,17 +20,18 @@ app = typer.Typer()
 @app.command()
 def main(
     # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
-    features_path: Path = PROCESSED_DATA_DIR / "test_features.csv",
-    model_path: Path = MODELS_DIR / "model.pkl",
+    features_path: Path = DATA_DIR / "external/X_test.csv",
+    model_path: Path = MODELS_DIR / "lead_model_lr.pkl",
     predictions_path: Path = PROCESSED_DATA_DIR / "test_predictions.csv",
     # -----------------------------------------
 ):
     # ---- REPLACE THIS WITH YOUR OWN CODE ----
-    logger.info("Performing inference for model...")
-    for i in tqdm(range(10), total=10):
-        if i == 5:
-            logger.info("Something happened for iteration 5.")
-    logger.success("Inference complete.")
+    with open(model_path, "rb") as f:
+        model = joblib.load(f)
+    X_test = pd.read_csv(features_path)
+    predictions = model.predict(X_test)
+    pd.DataFrame(predictions, columns=["prediction"]).to_csv(predictions_path, index=False)
+    
     # -----------------------------------------
 
 
@@ -32,10 +41,6 @@ if __name__ == "__main__":
 
 # OLD CODE from original source file (model_inference.py)
 """
-import sklearn
-import pandas as pd
-import joblib
-
 with open("artifacts/lead_model_lr.pkl", "rb") as f:
     model = joblib.load(f)
 
