@@ -21,7 +21,7 @@ func (m *DaggerPipeline) Test(
 		// Pull data if relevant for tests
 		WithExec([]string{"sh", "-c", "dvc pull || dvc update data/raw/raw_data.csv.dvc"}).
 		//apparently dont need to specify exactly test file path as long as they begin with 'test_" and are in "/tests"
-		WithExec([]string{"sh", "-c", "pytest --maxfail=1 --disable-warnings"})
+		WithExec([]string{"sh", "-c", "pytest tests/ --maxfail=1 --disable-warnings"})
 }
 
 // Train runs the training pipeline: install dependencies, pull data, process features, and train the model.
