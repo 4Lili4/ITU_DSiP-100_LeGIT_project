@@ -38,6 +38,132 @@ The full data structure can be found under `references/data-structure.md`.
 
 Files that were modified from the original given structure can be found in `references/ccds-changes-made.md`.
 
+### Summary of each sub-directory:
+
+<details>
+<summary><strong>.dvc/</strong></summary>
+
+DVC directory for DVC specific files, enables versioning of large files that should not be stored directly in Git.
+
+- Data files in `data/raw/` and other large artifacts are tracked via `.dvc` files
+- Ensure reproducibility across experiments and pipeline runs
+
+Files: 
+- `.gitignore` - gitignore specifically for temporary files made by DVC
+- `config` - DVC config file (defines remote cloud storage for data files to pull from)
+
+</details>
+
+<details>
+<summary><strong>.github/workflows/</strong></summary>
+
+This directory defines the **GitHub Actions workflows** that trigger and execute the model creation, testing, and validation pipeline automatically by triggering dagger.
+
+</details>
+
+<details>
+<summary><strong>dagger/</strong></summary>
+
+Dagger directory for dagger workflow files (kept as a separate directory for local pipeline execution)
+
+Contains functions to run the full ML pipeline, pytests, and artitfact validation
+
+Key files:
+- `main.go` – Entry point for the Dagger pipeline
+- `dagger.json` – Dagger configuration
+- `go.mod`, `go.sum` – Go dependencies
+
+</details>
+
+<details>
+<summary><strong>data/</strong></summary>
+
+Storage for data, organized by processing stage, following cookiecutter data science principles:
+
+- `raw/` – Immutable raw data (tracked with DVC)
+- `external/` – Data from third party sources (i.e. pre-made test data)
+- `interim/` – Intermediate outputs that has been transformed
+- `processed/` – Final datasets for modelling
+- `raw` - The original, immutable data dump
+
+</details>
+
+<details>
+<summary><strong>docs/</strong></summary>
+
+A default mkdocs setup from mkdocs.org for documentation and documentation generation, including:
+- `mkdocs.yml` - The configuration file for the mkdocs documentation
+
+</details>
+
+<details>
+<summary><strong>mlops_src/</strong></summary>
+
+Source code for use in this project.
+All logic here is written as reusable, modular templates that can be executed both locally and in CI.
+
+Structure:
+- `templ_dataset.py` – Preprocessing
+- `templ_features.py` – Feature selection
+- `modeling/`
+  - `templ_train.py` – Model training
+  - `templ_predict.py` – Inference logic
+- `templ_config.py` – Reusable configuration and useful variables
+- `__init__.py` – Makes the directory (mlops_src) a Python module
+- 
+</details>
+
+<details>
+<summary><strong>models/</strong></summary>
+
+Stores serialized model outputs and artifacts, including:
+- Trained model files (`.pkl`, `.json`)
+- Evaluation summaries and performance metrics
+
+The final artifact will be validated automatically through github actions.
+
+</details>
+
+<details>
+<summary><strong>notebooks/</strong></summary>
+
+Jupyter notebooks. Naming convention is a number (for ordering), the creator's initials and a short `-` delimited description, e.g. `1.0-jqp-initial-data-exploration.ipynb`
+
+Once logic is validated in notebooks, it is **refactored into `mlops_src/` templates** to ensure reproducibility and CI compatibility.
+
+</details>
+
+<details>
+<summary><strong>references/</strong></summary>
+
+Contains supplementary explanatory materials for context through the development stages of this project:
+- `project-architecture.png` - A .png to be loaded in project-description.md of the architecture diagram
+- `diagrams.excalidraw` - Diagram that can be visualized in excalidraw
+- Project description
+
+</details>
+
+<details>
+<summary><strong>reports/</strong></summary>
+
+Generated analysis as HTML, PDF, LaTeX, etc.
+For future expansion of a typical project, it would store figures and visual outputs generated during analysis and evaluation.
+
+</details>
+
+<details>
+<summary><strong>tests/</strong></summary>
+
+Contains automated tests using pytest for:
+- Model training pipelines
+- Inference and prediction logic
+
+Tests are executed in CI to ensure correctness and stability before merging or deployment.
+
+</details>
+
+
+
 ## TODO:
 - migrate the `references/Notes from last lecture.docx` file from references out of the repo
 - sort out the `notebooks/old-to-be-merged` folder
