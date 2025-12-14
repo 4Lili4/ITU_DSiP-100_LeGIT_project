@@ -9,9 +9,11 @@ import warnings
 import joblib
 import typer
 import json
-import os
+import os,sys
 
-from templ_config import max_date, min_date, INTERIM_DATA_DIR, RAW_DATA_DIR
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.append(project_root)
+from mlops_src.templ_config import max_date, min_date, INTERIM_DATA_DIR, RAW_DATA_DIR
 
 app = typer.Typer()
 
