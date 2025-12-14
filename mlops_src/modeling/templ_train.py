@@ -21,7 +21,7 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..
 sys.path.append(project_root)
 
 from mlops_src.templ_config import PROCESSED_DATA_DIR, MODELS_DIR, INTERIM_DATA_DIR, experiment_name, data_version, experiment_name, artifact_path, model_name
-
+from mlops_src.deploy import deploy_to_staging
 
 #app = typer.Typer()
 
@@ -243,6 +243,9 @@ def main(
         wait_until_ready(model_details.name, model_details.version)
         model_details = dict(model_details)
         print("Model details: ", model_details)
+
+    #Transition to staging by calling function from other deploy.py-file in the mlops_src folder
+    deploy_to_staging(model_name)
 
 
 if __name__ == "__main__":
