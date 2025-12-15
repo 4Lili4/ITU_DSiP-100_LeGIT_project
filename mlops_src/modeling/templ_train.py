@@ -14,7 +14,6 @@ import json
 import time
 import sys
 import os
-#import typer
 
 # Get the project root (one directory above mlops_src)
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -23,7 +22,6 @@ sys.path.append(project_root)
 from mlops_src.templ_config import PROCESSED_DATA_DIR, MODELS_DIR, INTERIM_DATA_DIR, experiment_name, data_version, experiment_name, artifact_path, model_name
 
 
-#app = typer.Typer()
 
 def create_dummy_cols(df, col):
     df_dummies = pd.get_dummies(df[col], prefix=col, drop_first=True)
@@ -82,7 +80,6 @@ def wait_for_deployment(model_name,
     return status
 
 
-#@app.command()
 def main(
     # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
     processed_path: Path = PROCESSED_DATA_DIR / "processed_data.csv",
@@ -279,20 +276,19 @@ def main(
     model_version_details = dict(client.get_model_version(name=model_name,version=model_version))
     model_status = True
     #If the model is in another stage than 'Staging', this and the following line initialise the transition
-    if model_version_details['current_stage'] != 'Staging':
-        client.transition_model_version_stage(
-            name=model_name,
-            version=model_version,stage="Staging", 
-            archive_existing_versions=True
-        )
+    #if model_version_details['current_stage'] != 'Staging':
+    #    client.transition_model_version_stage(
+    #        name=model_name,
+    #        version=model_version,stage="Staging", 
+    #        archive_existing_versions=True
+    #    )
         #Call wait_for_deployment function s.t. the line "Transition completed to 'Staging' is not printed until the model is actually updated
-        model_status = wait_for_deployment(model_name, model_version, 'Staging')
+    #    model_status = wait_for_deployment(model_name, model_version, 'Staging')
     
     #Of course, if the model is already in staging, this function should do nothing but print a user-friendly message
-    else:
-        print('Model already in staging')
+    #else:
+    #    print('Model already in staging')
 
 
 if __name__ == "__main__":
     main()
-#    app()
