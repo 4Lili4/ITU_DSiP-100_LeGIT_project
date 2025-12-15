@@ -276,18 +276,18 @@ def main(
     model_version_details = dict(client.get_model_version(name=model_name,version=model_version))
     model_status = True
     #If the model is in another stage than 'Staging', this and the following line initialise the transition
-    #if model_version_details['current_stage'] != 'Staging':
-    #    client.transition_model_version_stage(
-    #        name=model_name,
-    #        version=model_version,stage="Staging", 
-    #        archive_existing_versions=True
-    #    )
+    if model_version_details['current_stage'] != 'Staging':
+        client.transition_model_version_stage(
+            name=model_name,
+            version=model_version,stage="Staging", 
+            archive_existing_versions=True
+        )
         #Call wait_for_deployment function s.t. the line "Transition completed to 'Staging' is not printed until the model is actually updated
-    #    model_status = wait_for_deployment(model_name, model_version, 'Staging')
+        model_status = wait_for_deployment(model_name, model_version, 'Staging')
     
     #Of course, if the model is already in staging, this function should do nothing but print a user-friendly message
-    #else:
-    #    print('Model already in staging')
+    else:
+        print('Model already in staging')
 
 
 if __name__ == "__main__":
