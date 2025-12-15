@@ -14,6 +14,7 @@ import json
 import time
 import sys
 import os
+#import typer
 
 # Get the project root (one directory above mlops_src)
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -22,6 +23,7 @@ sys.path.append(project_root)
 from mlops_src.templ_config import PROCESSED_DATA_DIR, MODELS_DIR, INTERIM_DATA_DIR, experiment_name, data_version, experiment_name, artifact_path, model_name
 
 
+#app = typer.Typer()
 
 def create_dummy_cols(df, col):
     df_dummies = pd.get_dummies(df[col], prefix=col, drop_first=True)
@@ -80,6 +82,7 @@ def wait_for_deployment(model_name,
     return status
 
 
+#@app.command()
 def main(
     # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
     processed_path: Path = PROCESSED_DATA_DIR / "processed_data.csv",
@@ -292,3 +295,4 @@ def main(
 
 if __name__ == "__main__":
     main()
+#    app()
