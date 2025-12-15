@@ -1,4 +1,5 @@
-# MLOps Project 2025 - group 100% LeGIT
+# MLOps Project 2025 - group `100% LeGIT`
+
 
 ## Overview
 
@@ -12,7 +13,73 @@ The above sentence is also used as the description of the CCDS template
 
 Project structure was set up using the Cookiecutter Data Science (CCDS) template (v2) with the parameters listed below alongside the reasoning for it. The resulting data structure can be viewed below the parameters table.
 
-## Parameters & Reasoning
+
+## Running the code
+
+There are two ways to run the workflow. Triggering it on the cloud, or locally running it.
+
+### On the cloud
+
+The workflow is triggered either on a Pull Request to `main`, on changes to `main`, or manually.
+
+To manually triger it, head over to `Actions` tab in GitHub, select `MLOps Pipeline`, then press `Run workflow`, select brain `main`, and finally press `Run Workflow`. Afterwards the workflow will appear upon a refresh of the page, and can be inspected while running or post-run. Finally, the artifact is stored and validated.
+
+
+### Running Locally with Dagger
+
+This project uses [Dagger](https://dagger.io/) to define and run its CI/CD pipeline. You can execute the same pipelines locally that run in GitHub Actions.
+
+#### Prerequisites
+
+Ensure you have the following installed:
+
+1.  **Docker** (or a compatible container runtime) - Dagger runs steps in containers.
+2.  **Dagger CLI** (v0.19.8 or later recommended).
+3.  **Go** (v1.24 or later) - The Dagger pipeline is written in Go.
+4.  **Python** (v3.10) - Required for local development outside Dagger.
+
+> **Note:** The `dagger` module is located in the `dagger/` directory. All commands below assume you are running from the **root** of the repository.
+
+## Running Pipeline Steps
+
+You can run individual pipeline steps (functions) using the `dagger call` command.
+
+#### 1. Run Tests
+
+To run the `pytest` suite inside the Dagger container:
+
+```bash
+dagger call -m dagger test --source .
+```
+
+This will:
+- Spin up a container.
+- Install dependencies from `requirements.txt`.
+- Pull/Update DVC data.
+- Run `pytest tests/`.
+
+#### 2. Run Training Pipeline
+
+To run the full training pipeline (processing -> training -> evaluation):
+
+```bash
+dagger call -m dagger train --source . export --path ./models
+```
+
+This will run the training steps and export the resulting artifacts (saved models) to your local `models/` directory.
+
+#### 3. Run Prediction
+
+To run the prediction/inference step:
+
+```bash
+dagger call -m dagger predict --source . sync
+```
+
+This executes the `mlops_src/modeling/templ_predict.py` script within the container. We use `sync` to ensure the container execution completes.
+
+
+## CCDS Parameters & Reasoning
 
 | Parameter | Value | Reasoning |
 | :--- | :--- | :--- |
@@ -31,6 +98,7 @@ Project structure was set up using the Cookiecutter Data Science (CCDS) template
 | `open_source_license` | `MIT` | This will likely be available in the future publicly so we use MIT license, as it is permissive and allows for easy contribution. |
 | `docs` | `mkdocs` | Chosen for its simplicity and ease of use for documentation generation. |
 | `include_code_scaffold` | `Yes` | Provides a reference architecture (e.g., where to put data processing vs. training code) to guide the migration from the notebook. |
+
 
 ## Generated Data Structure
 
@@ -161,9 +229,3 @@ Contains automated tests using pytest for:
 Tests are executed in CI to ensure correctness and stability before merging or deployment.
 
 </details>
-
-
-
-## TODO:
-- migrate the `references/Notes from last lecture.docx` file from references out of the repo
-- sort out the `notebooks/old-to-be-merged` folder
