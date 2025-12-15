@@ -21,7 +21,6 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..
 sys.path.append(project_root)
 
 from mlops_src.templ_config import PROCESSED_DATA_DIR, MODELS_DIR, INTERIM_DATA_DIR, experiment_name, data_version, experiment_name, artifact_path, model_name
-from mlops_src.deploy import deploy_to_staging
 
 
 #app = typer.Typer()
