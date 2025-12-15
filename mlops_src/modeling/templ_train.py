@@ -273,24 +273,28 @@ def main(
         model_details = dict(model_details)
         print("Model details: ", model_details)
 
-    #Transition to staging if it's not already:
-    model_version = 1
+    #Code for transition to staging:__________________________________________________________________
+    #This block has been deemed irrelevant since it only ever printed 'model already in staging'. 
+    #With the implementation of the test_training.py script, this part also throws mlflow-exceptions. 
+    
+    #model_version = 1
     #Fetch model information
-    model_version_details = dict(client.get_model_version(name=model_name,version=model_version))
-    model_status = True
+    #model_version_details = dict(client.get_model_version(name=model_name,version=model_version))
+    #model_status = True
     #If the model is in another stage than 'Staging', this and the following line initialise the transition
-    if model_version_details['current_stage'] != 'Staging':
-        client.transition_model_version_stage(
-            name=model_name,
-            version=model_version,stage="Staging", 
-            archive_existing_versions=True
-        )
+    #if model_version_details['current_stage'] != 'Staging':
+    #    client.transition_model_version_stage(
+    #        name=model_name,
+    #        version=model_version,stage="Staging", 
+    #        archive_existing_versions=True
+    #    )
         #Call wait_for_deployment function s.t. the line "Transition completed to 'Staging' is not printed until the model is actually updated
-        model_status = wait_for_deployment(model_name, model_version, 'Staging')
+    #    model_status = wait_for_deployment(model_name, model_version, 'Staging')
     
     #Of course, if the model is already in staging, this function should do nothing but print a user-friendly message
-    else:
-        print('Model already in staging')
+    #else:
+    #    print('Model already in staging')
+    #__________________________________________________________________________________________________
 
 
 if __name__ == "__main__":
