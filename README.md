@@ -20,7 +20,7 @@ There are two ways to run the workflow. Triggering it on the cloud, or locally r
 
 ### On the cloud
 
-The `train` workflow is triggered either on a Pull Request to `main`, on changes to `main`, or manually. It runs both the `train`, `test`, and `predict` pipelines.
+The `train` workflow is triggered either on a Pull Request to `main`, on changes to `main`, or manually. It runs both the `train`, `test`, `predict` pipelines, and the `validator` provided within the MLOps course.
 
 The `test` and `predict` workflows can be separately triggered manually. To manually triger a workflow, head over to `Actions` tab in GitHub, select the workflow you want to trigger, select branch `main`, and finally press `Run Workflow`. Afterwards the workflow will appear upon a refresh of the page, and can be inspected while running or post-run. 
 
