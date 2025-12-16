@@ -20,16 +20,15 @@ There are two ways to run the workflow. Triggering it on the cloud, or locally r
 
 ### On the cloud
 
-The workflow is triggered either on a Pull Request to `main`, on changes to `main`, or manually.
+The `train` workflow is triggered either on a Pull Request to `main`, on changes to `main`, or manually. It runs both the `train`, `test`, and `predict` pipelines.
 
-To manually triger it, head over to `Actions` tab in GitHub, select `MLOps Pipeline`, then press `Run workflow`, select brain `main`, and finally press `Run Workflow`. Afterwards the workflow will appear upon a refresh of the page, and can be inspected while running or post-run. Finally, the artifact is stored and validated.
-
+The `test` and `predict` workflows can be separately triggered manually. To manually triger a workflow, head over to `Actions` tab in GitHub, select the workflow you want to trigger, select branch `main`, and finally press `Run Workflow`. Afterwards the workflow will appear upon a refresh of the page, and can be inspected while running or post-run. 
 
 ### Running Locally with Dagger
 
 This project uses [Dagger](https://dagger.io/) to define and run its CI/CD pipeline. You can execute the same pipelines locally that run in GitHub Actions.
 
-#### Prerequisites
+### Prerequisites
 
 Ensure you have the following installed:
 
@@ -40,7 +39,7 @@ Ensure you have the following installed:
 
 > **Note:** The `dagger` module is located in the `dagger/` directory. All commands below assume you are running from the **root** of the repository.
 
-## Running Pipeline Steps
+### Running Pipeline Steps
 
 You can run individual pipeline steps (functions) using the `dagger call` command.
 

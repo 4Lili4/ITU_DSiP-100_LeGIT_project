@@ -1,4 +1,4 @@
-name: MLOps Pipeline
+name: Train Pipeline
 
 on:
   push: # When push is made to main branch 
@@ -8,34 +8,7 @@ on:
   workflow_dispatch: # Manually trigger workflow, good for debugging before any push is made
 
 jobs:
-  # 0. Test Pipeline (Runs on PRs and Main)
-  test:
-    if: ${{ github.event_name != 'workflow_dispatch' }}
-    runs-on: ubuntu-latest # Spin up VM
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4 # Get code from GitHub into VM
-
-      - name: Setup Go
-        uses: actions/setup-go@v5 # Setup Go in VM
-        with:
-          go-version: '1.24' # Specify Go version for reproducibility
-          cache-dependency-path: dagger/go.sum
-
-      - name: Run Tests
-        uses: dagger/dagger-for-github@v6 # Use official Dagger GitHub Action
-        with:
-          version: "0.19.8" # Specify Dagger version for reproducibility
-          verb: call
-          module: dagger
-          args: test --source .
-        env:
-          DAGGER_LOG_FORMAT: plain # Set Dagger log format to plain text for ease of reading in GitHub
-
-  # 1. Train Pipeline
-  # THIS SHOULD ONLY RUN IF ITS MANUALLY TRIGGERED
   train:
-    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -64,6 +37,16 @@ jobs:
           verb: call
           module: dagger
           args: -o ./models train --source .
+        env:
+          DAGGER_LOG_FORMAT: plain # Set Dagger log format to plain text for ease of reading in GitHub
+
+      - name: Run Inference/Prediction
+        uses: dagger/dagger-for-github@v6 # Use official Dagger GitHub Action
+        with:
+          version: "0.19.8" # Specify Dagger version for reproducibility
+          verb: call
+          module: dagger
+          args: predict --source .
         env:
           DAGGER_LOG_FORMAT: plain # Set Dagger log format to plain text for ease of reading in GitHub
 
@@ -108,7 +91,3 @@ jobs:
 
       - name: Run Model Inference Test Action # Uses model validator action provided by ITU
         uses: lasselundstenjensen/itu-sdse-project-model-validator@main
-
-
-# There is no inference pipeline, as we might not need it, however for the future it could be worth considering
-# What if the prediction data changes?
